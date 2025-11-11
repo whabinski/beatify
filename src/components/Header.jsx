@@ -1,32 +1,18 @@
-export default function Header({ mode, setMode }) {
-  const modes = ["Bars", "Waveform", "Particles"];
-
+export default function Header() {
   return (
-    <header
-      style={{
-        textAlign: "center",
-        marginBottom: "1.5rem",
-        fontFamily: "sans-serif",
-      }}
-    >
-      <h1 style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
-        🎵 Music Visualizer
+    <header className="flex flex-col items-center space-y-4 mt-4 select-none">
+      <h1
+        className="text-5xl sm:text-6xl font-extrabold tracking-tight bg-gradient-to-r 
+                   from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent
+                   flex items-center gap-2 animate-glow"
+      >
+        <span className="text-4xl">🎶</span>
+        Beatify
       </h1>
 
-      {setMode && (
-        <div>
-          <label style={{ marginRight: "0.5rem" }}>Mode:</label>
-          <select
-            value={mode}
-            onChange={(e) => setMode(e.target.value)}
-            style={{ padding: "0.3rem 0.6rem", borderRadius: "4px" }}
-          >
-            {modes.map((m) => (
-              <option key={m}>{m}</option>
-            ))}
-          </select>
-        </div>
-      )}
+      <p className="text-gray-400 text-sm tracking-wide">
+        Feel the rhythm. See the sound.
+      </p>
     </header>
   );
 }
