@@ -9,12 +9,14 @@ export default function App() {
   const audioRef = useRef(null);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-between 
-                    bg-gradient-to-b from-slate-900 via-gray-900 to-black 
-                    text-white font-sans selection:bg-indigo-500 selection:text-white 
-                    py-8">
-      <div className="w-full max-w-5xl px-6 py-10 text-center space-y-10">
-        <Header/>
+    <div
+      className="min-h-screen flex flex-col items-center justify-between 
+                 bg-black text-white font-sans selection:bg-indigo-500 selection:text-white 
+                 relative overflow-hidden"
+    >
+
+      <div className="w-full max-w-6xl px-6 py-10 text-center space-y-10 z-10">
+        <Header />
         <VisualizerCanvas 
           audioRef={audioRef} 
           audioFile={audioFile} 
