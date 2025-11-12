@@ -79,7 +79,7 @@ export default function VisualizerCanvas({ audioRef, audioFile, mode }) {
     <div className="w-full flex justify-center">
       <canvas
         ref={canvasRef}
-        className="w-full max-w-6xl aspect-[2.4/1.3] bg-transparent border-none shadow-none outline-none rounded-none"
+        className="w-[100%] max-w-7xl h-[45vh] bg-transparent border-2 border-white shadow-none outline-none rounded-none"
       />
     </div>
   );
