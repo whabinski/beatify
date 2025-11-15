@@ -17,10 +17,15 @@ export default function VisualizerCanvas({ audioRef, audioFile, mode }) {
 
     const resizeCanvas = () => {
       const dpr = window.devicePixelRatio || 1;
-      canvas.width = canvas.clientWidth * dpr;
-      canvas.height = canvas.clientHeight * dpr;
+
+      // Use the true rendered width/height
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
+
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
@@ -54,12 +59,12 @@ export default function VisualizerCanvas({ audioRef, audioFile, mode }) {
   }, [audioFile, mode]);
 
   return (
-    <div className="w-full flex justify-center">
+    <div className="w-screen flex justify-center">
       <canvas
         ref={canvasRef}
-        className="w-[100%] max-w-7xl h-[45vh]
-                   bg-transparent border-2 border-white
-                   shadow-none outline-none rounded-none"
+        className="w-[80vw] sm:w-[80vw] h-[45vh]
+                  bg-transparent border-2 border-white
+                  shadow-none outline-none rounded-none"
       />
     </div>
   );

@@ -1,3 +1,6 @@
+import { useEffect } from "react";
+
+
 export default function Controls({ audioRef, setAudioFile, mode, setMode }) {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -10,6 +13,12 @@ export default function Controls({ audioRef, setAudioFile, mode, setMode }) {
   };
 
   const modes = ["Bars", "Waveform"];
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = 0.3;
+    }
+  }, []);
 
   return (
     <div
