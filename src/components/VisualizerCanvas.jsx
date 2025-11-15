@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import useAudioAnalyzer from "../hooks/useAudioAnalyzer";
 import drawBars from "./modes/BarsVisualizer";
-import drawWaveform from "./modes/WaveformVisualizer";
+import drawWaveform from "./modes/WaveVisualizer";
 import drawRadial from "./modes/RadialVisualizer";
 
 
@@ -43,7 +43,7 @@ export default function VisualizerCanvas({ audioRef, audioFile, mode }) {
       ctx.fillStyle = "rgba(0, 0, 0, 1)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      if (mode === "Waveform") {
+      if (mode === "Wave") {
         analyser.getByteTimeDomainData(dataArray);
         drawWaveform(ctx, canvas, dataArray);
       } else if (mode === "Radial") {
