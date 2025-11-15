@@ -1,58 +1,68 @@
 import { useEffect, useRef } from "react";
 
-export default function useAudioAnalyzer(audioRef, audioFile, useMic = false) {
+export default function useAudioAnalyzer(audioRef, audioFile) {
   const analyserRef = useRef(null);
   const dataArrayRef = useRef(null);
-  const bufferLengthRef = useRef(0);
+  const bufferLengthRef = useRef(null);
   const audioCtxRef = useRef(null);
   const sourceRef = useRef(null);
-  const streamRef = useRef(null);
 
   useEffect(() => {
-    let audioCtx;
-    let source;
+    const audioEl = audioRef.current;
+    if (!audioEl) return;
 
-    const setup = async () => {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      audioCtxRef.current = audioCtx;
+    // 🎧 Create the audio context once and reuse it
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    const audioCtx = audioCtxRef.current;
 
+    // ✅ Reuse the same MediaElementSource if it already exists
+    if (!sourceRef.current) {
+      sourceRef.current = audioCtx.createMediaElementSource(audioEl);
+    }
+
+    // ⚙️ Create or reuse analyser
+    if (!analyserRef.current) {
       const analyser = audioCtx.createAnalyser();
       analyser.fftSize = 256;
       analyserRef.current = analyser;
 
-      if (useMic) {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        streamRef.current = stream;
-        source = audioCtx.createMediaStreamSource(stream);
-      } else if (audioRef.current && audioFile) {
-        source = audioCtx.createMediaElementSource(audioRef.current);
+      // Connect graph only once
+      sourceRef.current.connect(analyser);
+      analyser.connect(audioCtx.destination);
+
+      // Init data array
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      dataArrayRef.current = dataArray;
+      bufferLengthRef.current = bufferLength;
+    }
+
+    // 🧩 Resume context (Chrome rule)
+    const resume = () => {
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume().catch(() => {});
       }
-
-      if (source) {
-        source.connect(analyser);
-        if (!useMic) {
-          analyser.connect(audioCtx.destination);
-        }
-
-        sourceRef.current = source;
-      }
-
-
-      bufferLengthRef.current = analyser.frequencyBinCount;
-      dataArrayRef.current = new Uint8Array(bufferLengthRef.current);
     };
-
-    setup();
+    window.addEventListener("click", resume);
+    window.addEventListener("keydown", resume);
 
     return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((t) => t.stop());
-      }
-      if (audioCtxRef.current && audioCtxRef.current.state !== "closed") {
-        audioCtxRef.current.close().catch(() => {});
-      }
+      window.removeEventListener("click", resume);
+      window.removeEventListener("keydown", resume);
+      // ❌ DO NOT close or disconnect context here — reuse across files
     };
-  }, [audioFile, useMic]);
+  }, [audioRef]);
+
+  // 🔄 When a new file loads, resume the context (don’t rebuild)
+  useEffect(() => {
+    if (!audioCtxRef.current) return;
+    const audioCtx = audioCtxRef.current;
+    if (audioCtx.state === "suspended") {
+      audioCtx.resume().catch(() => {});
+    }
+  }, [audioFile]);
 
   return { analyserRef, dataArrayRef, bufferLengthRef };
 }

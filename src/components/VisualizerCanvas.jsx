@@ -4,10 +4,11 @@ import drawBars from "./modes/BarsVisualizer";
 import drawWaveform from "./modes/WaveVisualizer";
 import drawRadial from "./modes/RadialVisualizer";
 
-export default function VisualizerCanvas({ audioRef, audioFile, mode, useMic }) {
+
+export default function VisualizerCanvas({ audioRef, audioFile, mode }) {
   const canvasRef = useRef(null);
   const { analyserRef, dataArrayRef, bufferLengthRef } =
-    useAudioAnalyzer(audioRef, audioFile, useMic);
+    useAudioAnalyzer(audioRef, audioFile);
 
   useEffect(() => {
     if (!analyserRef.current || !canvasRef.current) return;
@@ -18,11 +19,15 @@ export default function VisualizerCanvas({ audioRef, audioFile, mode, useMic }) 
 
     const resizeCanvas = () => {
       const dpr = window.devicePixelRatio || 1;
+
+      // Use the true rendered width/height
       const rect = canvas.getBoundingClientRect();
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
+
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
+
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
@@ -46,6 +51,7 @@ export default function VisualizerCanvas({ audioRef, audioFile, mode, useMic }) 
       } else {
         drawBars(ctx, canvas, dataArray, smoothed);
       }
+
     };
 
     draw();
@@ -55,7 +61,7 @@ export default function VisualizerCanvas({ audioRef, audioFile, mode, useMic }) 
       window.removeEventListener("resize", resizeCanvas);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     };
-  }, [audioFile, mode, useMic]);
+  }, [audioFile, mode]);
 
   return (
     <div className="w-screen flex justify-center">
