@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Controls({
   audioRef,
@@ -8,18 +8,45 @@ export default function Controls({
   useMic,
   setUseMic,
 }) {
+  const [selectedTrial, setSelectedTrial] = useState("");
+
+  // 🎵 Trial tracks (put these in /public/music/...)
+  const trialSongs = [
+    { name: "Mr Smith", file: "/music/Mr Smith - Hip Shot.mp3" },
+    { name: "Oneosune", file: "/music/Oneosune - Ancient Ruins.mp3" },
+    { name: "VADE", file: "/music/VADE - Chinatown.mp3" },
+  ];
+
+  // Upload local file
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const blobURL = URL.createObjectURL(file);
-      setAudioFile(blobURL);
-      if (audioRef.current) {
-        audioRef.current.src = blobURL;
-        audioRef.current.load();
-        audioRef.current.play().catch(() => {});
-      }
-      setUseMic(false); // ensure we’re in file mode
-    }
+    if (!file || !audioRef.current) return;
+
+    const blobURL = URL.createObjectURL(file);
+    setAudioFile(blobURL);             // tells analyzer about new source
+    audioRef.current.src = blobURL;    // point audio element to file
+    audioRef.current.load();
+
+    setUseMic(false);                  // mic off when using a file
+    setSelectedTrial("");              // clear trial selection
+  };
+
+  // Select one of the bundled trial tracks
+  const handleTrialChange = (e) => {
+    const file = e.target.value;
+    setSelectedTrial(file);
+
+    if (!file || !audioRef.current) return;
+
+    setUseMic(false);                  // mic off
+    setAudioFile(file);                // update analyzer
+    audioRef.current.src = file;
+    audioRef.current.load();
+    audioRef.current
+      .play()
+      .catch(() => {
+        // ignore autoplay errors (browser blocks without user gesture)
+      });
   };
 
   const modes = ["Bars", "Wave", "Radial"];
@@ -44,7 +71,7 @@ export default function Controls({
                    font-medium px-[1.2vw] py-[0.6vw] rounded-[0.6vw] 
                    shadow-inner transition-all text-[1vw]"
       >
-        Upload Song
+        Upload
         <input
           type="file"
           accept="audio/*"
@@ -53,11 +80,37 @@ export default function Controls({
         />
       </label>
 
+      {/* Trial Music Dropdown */}
+      <select
+        value={selectedTrial}
+        onChange={handleTrialChange}
+        className="bg-blue-500/70 hover:bg-blue-500 text-white px-[1vw] py-[0.6vw] 
+                   rounded-[0.6vw] border border-blue-400/40 
+                   focus:outline-none focus:ring-[0.2vw] focus:ring-blue-300 
+                   transition-all text-[1vw]"
+      >
+        <option value="">Trial</option>
+        {trialSongs.map((song) => (
+          <option
+            key={song.file}
+            value={song.file}
+            className="text-black bg-white"
+          >
+            {song.name}
+          </option>
+        ))}
+      </select>
+
       {/* Mic Button */}
       <button
         onClick={() => {
-          setUseMic((prev) => !prev);
-          if (audioRef.current) audioRef.current.pause();
+          const next = !useMic;
+          setUseMic(next);
+          if (next && audioRef.current) {
+            // switching mic on: pause any playing file and clear trial selection
+            audioRef.current.pause();
+            setSelectedTrial("");
+          }
         }}
         className={`px-[1.2vw] py-[0.6vw] rounded-[0.6vw] font-medium transition-all text-[1vw]
           ${
