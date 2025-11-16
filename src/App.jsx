@@ -11,16 +11,18 @@ export default function App() {
 
   return (
     <div
-      className="h-screen w-screen flex flex-col items-center justify-center 
-                 bg-black text-white font-sans selection:bg-indigo-500 selection:text-white 
-                 overflow-hidden"
+      className="h-[100dvh] w-full overflow-hidden
+                 bg-black text-white font-sans"
     >
-      <div className="w-full max-w-6xl flex flex-col items-center justify-between h-[90vh] px-6 text-center">
-        <div className="flex-none mt-[1vh]">
+      {/* Full-width, full-height column */}
+      <div className="h-full w-full flex flex-col px-4 sm:px-6">
+        {/* Header at top */}
+        <div className="flex-none pt-safe pb-4">
           <Header />
         </div>
 
-        <div className="flex-grow flex items-center justify-center">
+        {/* Visualizer fills middle area */}
+        <div className="flex-1 flex items-center justify-center">
           <VisualizerCanvas
             audioRef={audioRef}
             audioFile={audioFile}
@@ -29,7 +31,8 @@ export default function App() {
           />
         </div>
 
-        <div className="flex-none mb-[2vh] w-full flex justify-center">
+        {/* Controls pinned to bottom with a bit of extra space on desktop */}
+        <div className="flex-none pb-safe pt-3 mb-2 md:mb-8">
           <Controls
             audioRef={audioRef}
             setAudioFile={setAudioFile}

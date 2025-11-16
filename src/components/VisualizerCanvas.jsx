@@ -4,7 +4,12 @@ import drawBars from "./modes/BarsVisualizer";
 import drawWaveform from "./modes/WaveVisualizer";
 import drawRadial from "./modes/RadialVisualizer";
 
-export default function VisualizerCanvas({ audioRef, audioFile, mode, useMic }) {
+export default function VisualizerCanvas({
+  audioRef,
+  audioFile,
+  mode,
+  useMic,
+}) {
   const canvasRef = useRef(null);
   const { analyserRef, dataArrayRef, bufferLengthRef } =
     useAudioAnalyzer(audioRef, audioFile, useMic);
@@ -56,15 +61,14 @@ export default function VisualizerCanvas({ audioRef, audioFile, mode, useMic }) 
       window.removeEventListener("resize", resizeCanvas);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     };
-  }, [audioFile, mode, useMic, analyserRef, dataArrayRef, bufferLengthRef]);
+  }, [audioFile, mode, useMic]);
 
   return (
-    <div className="w-screen flex justify-center">
+    <div className="w-full h-full flex items-center justify-center">
       <canvas
         ref={canvasRef}
-        className="w-[80vw] sm:w-[80vw] h-[45vh]
-                  bg-transparent
-                  shadow-none outline-none rounded-none"
+        className="w-full max-w-5xl h-full
+                  bg-transparent shadow-none outline-none rounded-none"
       />
     </div>
   );
