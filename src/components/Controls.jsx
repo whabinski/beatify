@@ -10,10 +10,12 @@ export default function Controls({
 }) {
   const [selectedTrial, setSelectedTrial] = useState("");
 
+  const base = import.meta.env.BASE_URL;
+
   const trialSongs = [
-    { name: "Mr Smith – Hip Shot", file: "/music/Mr Smith - Hip Shot.mp3" },
-    { name: "Oneosune – Ancient Ruins", file: "/music/Oneosune - Ancient Ruins.mp3" },
-    { name: "VADE – Chinatown", file: "/music/VADE - Chinatown.mp3" },
+    { name: "Mr Smith", file: `${base}music/Mr Smith - Hip Shot.mp3` },
+    { name: "Oneosune", file: `${base}music/Oneosune - Ancient Ruins.mp3` },
+    { name: "VADE", file: `${base}music/VADE - Chinatown.mp3` },
   ];
 
   const controlWrapper = "h-[2.6rem] sm:h-[2.8rem] flex items-center";
