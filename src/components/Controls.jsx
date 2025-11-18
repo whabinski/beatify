@@ -1,58 +1,82 @@
+/**
+ * Controls Component
+ * ---------------------------------------------------------
+ * Renders all user input controls:
+ *   • Upload MP3
+ *   • Select Trial Music
+ *   • Microphone toggle
+ *   • Audio <player> element
+ *   • Mode selector (Bars / Wave / Radial)
+ */
+
 import { useEffect, useState } from "react";
 
 export default function Controls({
-  audioRef,
-  setAudioFile,
-  mode,
-  setMode,
-  useMic,
-  setUseMic,
+  audioRef,       // reference to <audio> element
+  setAudioFile,   // update selected audio file
+  mode,           // visualizer mode
+  setMode,        // update visualizer mode
+  useMic,         // mic enabled/disabled
+  setUseMic,      // toggle mic
 }) {
   const [selectedTrial, setSelectedTrial] = useState("");
 
+  // Built-in demo tracks for users without files
   const base = import.meta.env.BASE_URL;
-
   const trialSongs = [
     { name: "Mr Smith", file: `${base}music/Mr Smith - Hip Shot.mp3` },
     { name: "Oneosune", file: `${base}music/Oneosune - Ancient Ruins.mp3` },
     { name: "VADE", file: `${base}music/VADE - Chinatown.mp3` },
   ];
 
+  // Shared height for buttons
   const controlWrapper = "h-[2.6rem] sm:h-[2.8rem] flex items-center";
 
+  // -------------------------------------------------------
+  // Handle local file upload
+  // -------------------------------------------------------
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
+    // Convert file to blob URL so <audio> can play it
     const blobURL = URL.createObjectURL(file);
     setAudioFile(blobURL);
 
+    // Load audio into <audio> element
     if (audioRef.current) {
       audioRef.current.src = blobURL;
       audioRef.current.load();
     }
 
+    // Disable mic + deselect trial track
     setUseMic(false);
     setSelectedTrial("");
   };
 
+  // -------------------------------------------------------
+  // Handle selecting a built-in trial track
+  // -------------------------------------------------------
   const handleTrialSelect = (value) => {
     setSelectedTrial(value);
     if (!value) return;
 
+    // Ensure mic is off
     setUseMic(false);
 
+    // Load trial audio
     if (audioRef.current) {
       audioRef.current.src = value;
       audioRef.current.load();
-      audioRef.current.play().catch(() => {});
+      audioRef.current.play().catch(() => {}); // autoplay safe guard
     }
 
-    setAudioFile(value);
+    setAudioFile(value); // treat like normal file
   };
 
   const modes = ["Bars", "Wave", "Radial"];
 
+  // Set default volume once
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = 0.3;
@@ -68,13 +92,15 @@ export default function Controls({
                  backdrop-blur-md transition-all duration-300 
                  hover:bg-white/10 text-xs sm:text-sm min-w-0"
     >
-      {/* Upload Button */}
+      {/* ---------------------------------------------------
+         Upload Button — local audio files
+      ---------------------------------------------------- */}
       <label
-        className={`${controlWrapper} cursor-pointer bg-white/10 hover:bg-white/20 text-white 
-                    font-medium px-3 rounded-lg shadow-inner 
+        className={`${controlWrapper} cursor-pointer bg-white/10 hover:bg-white/20 
+                    text-white font-medium px-3 rounded-lg shadow-inner 
                     transition-all text-xs sm:text-sm`}
       >
-        <span>Upload Song</span>
+        <span>Upload MP3</span>
         <input
           type="file"
           accept="audio/*"
@@ -83,7 +109,9 @@ export default function Controls({
         />
       </label>
 
-      {/* Trial Music Dropdown */}
+      {/* ---------------------------------------------------
+         Trial Music Dropdown — built-in demo tracks
+      ---------------------------------------------------- */}
       <div className={`${controlWrapper} md:flex-1 min-w-[6rem]`}>
         <select
           value={selectedTrial}
@@ -106,7 +134,9 @@ export default function Controls({
         </select>
       </div>
 
-      {/* Mic Button */}
+      {/* ---------------------------------------------------
+         Microphone Button — toggles mic visualizer mode
+      ---------------------------------------------------- */}
       <button
         onClick={() => {
           setUseMic((prev) => !prev);
@@ -124,7 +154,9 @@ export default function Controls({
         {useMic ? "Stop Mic" : "Use Mic"}
       </button>
 
-      {/* Audio Player */}
+      {/* ---------------------------------------------------
+         Audio Player
+      ---------------------------------------------------- */}
       <audio
         ref={audioRef}
         controls
@@ -133,7 +165,9 @@ export default function Controls({
                    transition-all duration-300 min-w-0"
       />
 
-      {/* Mode Selector */}
+      {/* ---------------------------------------------------
+         Mode Selector — Bars / Wave / Radial
+      ---------------------------------------------------- */}
       <div className={`${controlWrapper} min-w-[6rem]`}>
         <select
           value={mode}

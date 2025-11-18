@@ -1,15 +1,37 @@
+/**
+ * useAudioAnalyzer
+ * ---------------------------------------------------------
+ * A custom hook that manages:
+ *   - A single shared AudioContext for the entire app
+ *   - A persistent AnalyserNode for visualizing audio
+ *   - An audio <audio> element source (MediaElementSourceNode)
+ *   - An optional microphone input source (MediaStreamSource)
+ */
+
 import { useEffect, useRef } from "react";
 
 export default function useAudioAnalyzer(audioRef, audioFile, useMic = false) {
+  // Persistent analyzer node
   const analyserRef = useRef(null);
+
+  // Holds the time/frequency domain data arrays used by visualizers
   const dataArrayRef = useRef(null);
   const bufferLengthRef = useRef(null);
-  const audioCtxRef = useRef(null);
-  const elementSourceRef = useRef(null); // audio <audio> source
-  const micSourceRef = useRef(null);     // mic source
-  const micStreamRef = useRef(null);     // mic stream
 
-  // 🔊 Original: set up AudioContext + analyser + media element source ONCE
+  // Shared AudioContext
+  const audioCtxRef = useRef(null);
+
+  // Audio sources
+  const elementSourceRef = useRef(null); // <audio> element
+  const micSourceRef = useRef(null);     // Microphone
+  const micStreamRef = useRef(null);     // Raw MediaStream for stopping
+
+  /**
+   * ---------------------------------------------------------
+   * 1) INITIAL SETUP: AudioContext + MediaElementSource + Analyser
+   * Runs only when `audioRef` first becomes available.
+   * ---------------------------------------------------------
+   */
   useEffect(() => {
     const audioEl = audioRef.current;
     if (!audioEl) return;
@@ -20,30 +42,32 @@ export default function useAudioAnalyzer(audioRef, audioFile, useMic = false) {
     }
     const audioCtx = audioCtxRef.current;
 
-    // Create MediaElementSource ONLY ONCE
+    // Create the <audio> element's source
     if (!elementSourceRef.current) {
       elementSourceRef.current = audioCtx.createMediaElementSource(audioEl);
     }
 
-    // Create analyser ONLY ONCE
+    // Create analyser
     if (!analyserRef.current) {
       const analyser = audioCtx.createAnalyser();
       analyser.fftSize = 256;
       analyserRef.current = analyser;
 
-      // tap audio element into analyser
+      // Connect <audio> element to analyser
       elementSourceRef.current.connect(analyser);
-      // send audio element directly to output (not through analyser)
+
+      // Connect <audio> element to speakers
       elementSourceRef.current.connect(audioCtx.destination);
 
-      // init data buffer
+      // Initialize output buffers for visualizers
       const bufferLength = analyser.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
-      dataArrayRef.current = dataArray;
+
       bufferLengthRef.current = bufferLength;
+      dataArrayRef.current = dataArray;
     }
 
-    // Resume context on user interaction (Chrome autoplay rule)
+    // Resume context on user interaction
     const resume = () => {
       if (audioCtx.state === "suspended") {
         audioCtx.resume().catch(() => {});
@@ -55,20 +79,28 @@ export default function useAudioAnalyzer(audioRef, audioFile, useMic = false) {
     return () => {
       window.removeEventListener("click", resume);
       window.removeEventListener("keydown", resume);
-      // Do NOT close or disconnect here — we reuse the graph for the whole app
     };
   }, [audioRef]);
 
-  // When a new file loads, just ensure the context is resumed
+  /**
+   * ---------------------------------------------------------
+   * 2) Resumes AudioContext whenever a new file loads.
+   * ---------------------------------------------------------
+   */
   useEffect(() => {
     if (!audioCtxRef.current) return;
     const audioCtx = audioCtxRef.current;
+
     if (audioCtx.state === "suspended") {
       audioCtx.resume().catch(() => {});
     }
   }, [audioFile]);
 
-  // 🎤 Mic handling: add/remove mic source to the SAME analyser
+  /**
+   * ---------------------------------------------------------
+   * 3) Mic handling
+   * ---------------------------------------------------------
+   */
   useEffect(() => {
     const audioCtx = audioCtxRef.current;
     const analyser = analyserRef.current;
@@ -76,20 +108,24 @@ export default function useAudioAnalyzer(audioRef, audioFile, useMic = false) {
 
     let cancelled = false;
 
+    /** Enable microphone */
     const enableMic = async () => {
       try {
+        // Request permission
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+        // If effect cleaned up while waiting, stop immediately
         if (cancelled) {
-          // effect was cleaned up before permission resolved
           stream.getTracks().forEach((t) => t.stop());
           return;
         }
+
         micStreamRef.current = stream;
 
+        // Convert raw stream to Web Audio node
         const micSource = audioCtx.createMediaStreamSource(stream);
         micSourceRef.current = micSource;
 
-        // Mic goes ONLY into analyser (no echo)
         micSource.connect(analyser);
       } catch (err) {
         console.error("Microphone access error:", err);
@@ -99,7 +135,7 @@ export default function useAudioAnalyzer(audioRef, audioFile, useMic = false) {
     if (useMic) {
       enableMic();
     } else {
-      // turning mic OFF → disconnect & stop stream
+      // Disable mic: disconnect source and stop stream
       if (micSourceRef.current) {
         try {
           micSourceRef.current.disconnect();
@@ -112,10 +148,10 @@ export default function useAudioAnalyzer(audioRef, audioFile, useMic = false) {
       }
     }
 
+    // Cleanup if component unmounts or mic quickly toggles
     return () => {
       cancelled = true;
 
-      // if unmounting while mic is still on, clean it up
       if (useMic) {
         if (micSourceRef.current) {
           try {
@@ -131,5 +167,6 @@ export default function useAudioAnalyzer(audioRef, audioFile, useMic = false) {
     };
   }, [useMic]);
 
+  // Return analyser and buffers to visualization renderer
   return { analyserRef, dataArrayRef, bufferLengthRef };
 }

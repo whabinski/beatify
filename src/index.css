@@ -5,7 +5,6 @@
   --safe-bottom: env(safe-area-inset-bottom);
 }
 
-/* Tailwind-style utility classes */
 .pt-safe {
   padding-top: max(1rem, var(--safe-top));
 }

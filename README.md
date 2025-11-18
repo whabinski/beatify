@@ -1,16 +1,47 @@
-# React + Vite
+# **Beatify**
+### _A responsive, real-time audio visualizer for music and microphone input_
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Beatify is a modern, dynamic audio visualization web app built with **React**, **Vite**, **TailwindCSS**, and the **Web Audio API**.  
+It allows users to upload songs, choose from built-in demo tracks, or visualize live microphone input — all rendered beautifully in three visualizer modes.
 
-Currently, two official plugins are available:
+The experience is fully responsive: works seamlessly on desktop and mobile browsers.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🚀 **Demo**
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**Live Site:** _https://whabinski.github.io/beatify/_  
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## ✨ **Features**
+
+### 🎧 Audio Sources
+- Upload any local mp3 audio file  
+- Choose from bundled **trial music** included in the project  
+- Enable **microphone mode** and visualize live audio input  
+
+### 🌈 Visualizer Modes
+- **Bars** – pulsing rainbow equalizer  
+- **Wave** – glowing waveform with mirrored reflection  
+- **Radial** – circular spectrum burst with motion trails  
+
+### 📱 Responsive Design
+- Automatically adapts between phone, tablet, and desktop  
+- Dynamic resizing of the canvas  
+
+### 🎛 Modern UI
+- Smooth gradients, glow animations, and subtle shadows  
+- Controls panel that adapts to viewport size  
+- Clean, glassy design powered by TailwindCSS  
+
+---
+
+## 🛠 **Tech Stack**
+
+- **React 18**  
+- **Vite**  
+- **TailwindCSS**  
+- **Web Audio API**   
+
+---
