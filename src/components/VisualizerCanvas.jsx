@@ -64,10 +64,10 @@ export default function VisualizerCanvas({
   }, [audioFile, mode, useMic]);
 
   return (
-    <div className="w-full h-full flex items-center justify-center">
+    <div className="w-full h-full flex items-center justify-center min-w-0 min-h-0">
       <canvas
         ref={canvasRef}
-        className="w-full max-w-5xl h-full
+        className="w-full h-full
                   bg-transparent shadow-none outline-none rounded-none"
       />
     </div>
